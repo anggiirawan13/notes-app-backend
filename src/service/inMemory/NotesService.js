@@ -1,8 +1,10 @@
 const { nanoid } = require('nanoid');
+const InvariantError = require('../../exceptions/InvariantError');
+const NotFoundError = require('../../exceptions/NotFoundError');
 
 class NotesService {
   constructor() {
-    this.notes = [];
+    this._notes = [];
   }
 
   addNote({ title, body, tags }) {
@@ -21,39 +23,39 @@ class NotesService {
       updatedAt,
     };
 
-    this.notes.push(newNote);
+    this._notes.push(newNote);
 
-    const isSuccess = this.notes.filter((note) => note.id === id).length > 0;
+    const isSuccess = this._notes.filter((note) => note.id === id).length > 0;
     if (!isSuccess) {
-      throw new Error('Catatan gagal ditambahkan');
+      throw new InvariantError('Catatan gagal ditambahkan');
     }
 
     return id;
   }
 
   getNotes() {
-    return this.notes;
+    return this._notes;
   }
 
   getNoteById(id) {
-    const note = this.notes.filter((n) => n.id === id)[0];
+    const note = this._notes.filter((n) => n.id === id)[0];
     if (!note) {
-      throw new Error('Catatan tidak ditemukan');
+      throw new NotFoundError('Catatan tidak ditemukan');
     }
 
     return note;
   }
 
   editNoteById(id, { title, body, tags }) {
-    const index = this.notes.findIndex((note) => note.id === id);
+    const index = this._notes.findIndex((note) => note.id === id);
     if (index === -1) {
-      throw new Error('Gagal memperbarui catatan. Id tidak ditemukan');
+      throw new NotFoundError('Gagal memperbarui catatan. Id tidak ditemukan');
     }
 
     const updatedAt = new Date().toISOString();
 
-    this.notes[index] = {
-      ...this.notes[index],
+    this._notes[index] = {
+      ...this._notes[index],
       title,
       body,
       tags,
@@ -62,12 +64,12 @@ class NotesService {
   }
 
   deleteNoteById(id) {
-    const index = this.notes.findIndex((note) => note.id === id);
+    const index = this._notes.findIndex((note) => note.id === id);
     if (index === -1) {
-      throw new Error('Catatan tidak ditemukan');
+      throw new NotFoundError('Catatan tidak ditemukan');
     }
 
-    this.notes.splice(index, 1);
+    this._notes.splice(index, 1);
   }
 }
 
